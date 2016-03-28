@@ -9,10 +9,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button button;
+    private String path = "audio";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +30,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 //Toast.makeText(getApplicationContext(), "Potrebno je kg mesa", Toast.LENGTH_LONG).show();
                 AssetFileDescriptor afd = null;
+                String name = listAssetFiles(path);
                 try {
-                    afd = getAssets().openFd("mixmix.mp3");
+                    afd = getAssets().openFd(path + "/" + name);
                     MediaPlayer player = new MediaPlayer();
                     player.setDataSource(afd.getFileDescriptor());
+                    if(player.isPlaying()) {
+                        player.stop();
+                    }
                     player.prepare();
                     player.start();
 
@@ -42,6 +48,29 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+    }
+
+    private String listAssetFiles(String path) {
+
+        String [] list;
+        String name = "mixmix.mp3";
+        try {
+            list = getAssets().list(path);
+            if (list.length > 0) {
+                // This is a folder
+                Random r = new Random();
+                int i1 = r.nextInt(list.length - 1) + 1;
+
+                name = list[i1-1];
+            } else {
+                // This is a file
+                // TODO: add file name to an array list
+            }
+        } catch (IOException e) {
+            Toast.makeText(getApplicationContext(), (CharSequence) e, Toast.LENGTH_LONG).show();
+        }
+
+        return name;
     }
 
 }
